@@ -94,7 +94,7 @@ const displayMovements = function (movements, sort = false) {
         <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
-        <div class="movements__value">${mov}€</div>
+        <div class="movements__value">${mov.toFixed(2)}€</div>
       </div>
     `;
 
@@ -104,19 +104,19 @@ const displayMovements = function (movements, sort = false) {
 
 const calcDisplayBalance = function (acc) {
   acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${acc.balance}€`;
+  labelBalance.textContent = `${acc.balance.toFixed(2)}€`;
 };
 
 const calcDisplaySummary = function (acc) {
   const incomes = acc.movements
     .filter(mov => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
-  labelSumIn.textContent = `${incomes}€`;
+  labelSumIn.textContent = `${incomes.toFixed(2)}€`;
 
   const out = acc.movements
     .filter(mov => mov < 0)
     .reduce((acc, mov) => acc + mov, 0);
-  labelSumOut.textContent = `${Math.abs(out)}€`;
+  labelSumOut.textContent = `${Math.abs(out).toFixed(2)}€`;
 
   const interest = acc.movements
     .filter(mov => mov > 0)
@@ -126,7 +126,7 @@ const calcDisplaySummary = function (acc) {
       return int >= 1;
     })
     .reduce((acc, int) => acc + int, 0);
-  labelSumInterest.textContent = `${interest}€`;
+  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
 };
 
 const createUsernames = function (accs) {
@@ -164,7 +164,7 @@ btnLogin.addEventListener('click', function (e) {
   );
   console.log(currentAccount);
 
-  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+  if (currentAccount?.pin === +inputLoginPin.value) {
     // Display UI and message
     labelWelcome.textContent = `Welcome back, ${
       currentAccount.owner.split(' ')[0]
@@ -182,7 +182,7 @@ btnLogin.addEventListener('click', function (e) {
 
 btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
-  const amount = Number(inputTransferAmount.value);
+  const amount = +inputTransferAmount.value;
   const receiverAcc = accounts.find(
     acc => acc.username === inputTransferTo.value
   );
@@ -206,7 +206,7 @@ btnTransfer.addEventListener('click', function (e) {
 btnLoan.addEventListener('click', function (e) {
   e.preventDefault();
 
-  const amount = Number(inputLoanAmount.value);
+  const amount = Math.floor(inputLoanAmount.value);
 
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
     // Add movement
@@ -223,7 +223,7 @@ btnClose.addEventListener('click', function (e) {
 
   if (
     inputCloseUsername.value === currentAccount.username &&
-    Number(inputClosePin.value) === currentAccount.pin
+    +inputClosePin.value === currentAccount.pin
   ) {
     const index = accounts.findIndex(
       acc => acc.username === currentAccount.username
@@ -251,3 +251,84 @@ btnSort.addEventListener('click', function (e) {
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
+console.log(23 === 23.0);
+// Base 10 - 0 to 9. 1/10 = 0.1  3/10 = 3.333333
+//Binary Base 2 - 0 1
+console.log(0.1 + 0.2);
+console.log(0.1 + 0.2 === 0.3);
+
+//❗Conversion
+console.log(Number('23')); // Convert a string to a number
+console.log(+'23'); // type coercion (transform a string to a number);
+
+// ❗Parsing
+//parsInt() stand for integers
+// Both of them they are global functions.
+console.log(Number.parseInt('30px', 10)); // in order to work the string has to start with a number.
+//parsInt() actualy accepts the second parameter called regex. Regex is the base of numeral sistem that we are using
+//here we are using base 10 numbers(numbers from 0-9) and most of the time we are doing that.
+console.log(Number.parseInt('e23', 10)); // is not a number because has to start with a number
+
+//❗this is the method wich we should use whenever we want to read a value out of a string ,for example coming from CSS
+console.log(Number.parseFloat('2.5rem')); //stand for floating numbers.Its reading the decimal from our string
+
+//Check is value is NaN
+console.log(Number.isNaN(20)); //false , check if is not a number
+console.log(Number.isNaN('20'));
+console.log(Number.isNaN(+'20X'));
+console.log(Number.isNaN(23 / 0)); // not allowed in matematics it give us infinity
+
+//❗There is a better method called isFinite() wich we can check if it is a number or not
+// Check if Value is number
+console.log(Number.isFinite(20)); // true , because its a number
+console.log(Number.isFinite('20')); // false , because its not a number
+console.log(Number.isFinite(+'20Rem')); // false, its not a number
+console.log(Number.isFinite(23 / 0)); // false , give us infinity which is not finite.
+
+console.log(Number.isInteger(23)); // true
+console.log(Number.isInteger(23.5)); //false
+console.log(Number.isInteger('23')); //false
+
+////❗Rounding Numbers and Math
+
+console.log(Math.sqrt(25));
+console.log(25 ** (1 / 2));
+console.log(8 ** (1 / 3)); // the single way to calculate the cubic root
+
+console.log(Math.max(5, 18, 23, 11, 2)); // return the maximum value
+console.log(Math.max(5, 18, '23', 11, 2)); // does coercion (transform a string in to a number) ,returns the biggest value
+console.log(Math.max(5, 18, '23rem', 11, 2)); // it does not parsing. return Nan
+
+console.log(Math.min(5, 18, 23, 11, 2)); // return the minimum value
+
+//They are also constants on the math object or on the math namespace.
+//EXAMPLE: If we want to calculate the radius of a circle with 10 pixels we can do that
+console.log(Math.PI * Number.parseFloat('10px') ** 2);
+
+//Another thing that is on the math object is the Math.random() function
+console.log(Math.trunc(Math.random() * 6) + 1);
+
+//We can generalize this formula and use it  always to generate random integers between two values.
+const randomInt = (min, max) =>
+  Math.floor(Math.random() * (max - min) + 1) + min; // this is a function which will give us a number that's going to stay between min and max.
+
+//❗ROUNDING
+//Rounding Integers
+// All methods it is doing parsing also
+console.log(Math.round(23.3));
+console.log(Math.round(23.9)); // rounding to the closest integer
+
+console.log(Math.floor(23.3));
+console.log(Math.floor('23.9')); // its doing pasrsing also
+
+console.log(Math.ceil(23.3));
+console.log(Math.ceil(23.9));
+
+console.log(Math.trunc(23.3)); // rounding the numbers
+console.log(Math.trunc(-23.3));
+console.log(Math.floor(-23.3));
+
+//Rounding Decimals
+console.log(+(2.7).toFixed(0)); // to.Fixed will return a string not a number, and to return a number we have to add  + in front
+console.log((2.7).toFixed(3)); // it will add the amount of decimals specified
+console.log(+(2.345).toFixed(3));

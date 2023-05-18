@@ -332,3 +332,26 @@ console.log(Math.floor(-23.3));
 console.log(+(2.7).toFixed(0)); // to.Fixed will return a string not a number, and to return a number we have to add  + in front
 console.log((2.7).toFixed(3)); // it will add the amount of decimals specified
 console.log(+(2.345).toFixed(3));
+
+//❗The Reminder Operator %
+console.log(5 % 2); // returns the reminder of a division
+console.log(5 / 2); // 5 = 2*2+1
+
+console.log(6 % 2);
+console.log(6 / 2);
+
+console.log(8 % 3);
+console.log(8 / 3); // 8 = 2 * 3 + 1
+
+const isEven = n => n % 2 === 0; // creating a general function to check if a certain number its even or not
+console.log(isEven(8));
+console.log(isEven(23));
+console.log(isEven(514));
+
+labelBalance.addEventListener('click', function () {
+  [...document.querySelectorAll('.movements__row')].forEach(function (row, i) {
+    if (i % 2 === 0) row.style.backgroundColor = 'orangered';
+    if (i % 3 === 0) row.style.backgroundColor = 'purple';
+  });
+}); // when we want to color the each second element in the movements.row
+// when we want to color the 3rd each element in the movements.row

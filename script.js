@@ -21,9 +21,9 @@ const account1 = {
     '2020-01-28T09:15:04.904Z',
     '2020-04-01T10:17:24.185Z',
     '2020-05-08T14:11:59.604Z',
-    '2020-05-27T17:01:17.194Z',
-    '2020-07-11T23:36:17.929Z',
-    '2020-07-12T10:51:36.790Z',
+    '2023-05-05T17:01:17.194Z',
+    '2023-05-24T23:36:17.929Z',
+    '2023-05-25T10:51:36.790Z',
   ],
   currency: 'EUR',
   locale: 'pt-PT', // de-DE
@@ -42,8 +42,8 @@ const account2 = {
     '2020-01-25T14:18:46.235Z',
     '2020-02-05T16:33:06.386Z',
     '2020-04-10T14:43:26.374Z',
-    '2020-06-25T18:49:59.371Z',
-    '2020-07-26T12:01:20.894Z',
+    '2023-05-24T18:49:59.371Z',
+    '2023-05-25T12:01:20.894Z',
   ],
   currency: 'USD',
   locale: 'en-US',
@@ -81,19 +81,46 @@ const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////
 // Functions
 
-const displayMovements = function (movements, sort = false) {
+const formatMovementDate = function (date) {
+  const calcDaysPassed = (date1, date2) =>
+    Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+
+  const daysPassed = calcDaysPassed(new Date(), date);
+  console.log(daysPassed);
+
+  if (daysPassed === 0) return 'Today';
+  if (daysPassed === 1) return 'Yesterday';
+  if (daysPassed <= 7) return `${daysPassed} days ago`;
+
+  const day = `${date.getDate()}`.padStart(2, '0');
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const year = date.getFullYear();
+  const hour = `${date.getHours()}`.padStart(2, '0');
+  const min = `${date.getMinutes()}`.padStart(2, '0');
+  const seconds = date.getSeconds();
+  return `${day}/${month}/${year}, ${hour}:${min}:${seconds}`;
+};
+
+const displayMovements = function (acc, sort = false) {
   containerMovements.innerHTML = '';
 
-  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  const movs = sort
+    ? acc.movements.slice().sort((a, b) => a - b)
+    : acc.movements;
 
   movs.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
+
+    const date = new Date(acc.movementsDates[i]); // u use the same current index
+
+    const displayDate = formatMovementDate(date);
 
     const html = `
       <div class="movements__row">
         <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
+        <div class="movements__date">${displayDate}</div>
         <div class="movements__value">${mov.toFixed(2)}€</div>
       </div>
     `;
@@ -142,7 +169,7 @@ createUsernames(accounts);
 
 const updateUI = function (acc) {
   // Display movements
-  displayMovements(acc.movements);
+  displayMovements(acc);
 
   // Display balance
   calcDisplayBalance(acc);
@@ -154,6 +181,11 @@ const updateUI = function (acc) {
 ///////////////////////////////////////
 // Event handlers
 let currentAccount;
+
+///FAKE ALWAYS LOGGED IN
+currentAccount = account1;
+updateUI(currentAccount);
+containerApp.style.opacity = 100;
 
 btnLogin.addEventListener('click', function (e) {
   // Prevent form from submitting
@@ -170,6 +202,15 @@ btnLogin.addEventListener('click', function (e) {
       currentAccount.owner.split(' ')[0]
     }`;
     containerApp.style.opacity = 100;
+
+    //Creating current Date and Time
+    const now = new Date();
+    const day = `${now.getDate()}`.padStart(2, '0');
+    const month = `${now.getMonth() + 1}`.padStart(2, '0');
+    const year = now.getFullYear();
+    const hour = `${now.getHours()}`.padStart(2, '0');
+    const min = `${now.getMinutes()}`.padStart(2, '0');
+    labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
 
     // Clear input fields
     inputLoginUsername.value = inputLoginPin.value = '';
@@ -198,6 +239,10 @@ btnTransfer.addEventListener('click', function (e) {
     currentAccount.movements.push(-amount);
     receiverAcc.movements.push(amount);
 
+    // Add Transfer Date
+    currentAccount.movementsDates.push(new Date().toISOString());
+    receiverAcc.movementsDates.push(new Date().toISOString());
+
     // Update UI
     updateUI(currentAccount);
   }
@@ -211,6 +256,9 @@ btnLoan.addEventListener('click', function (e) {
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
     // Add movement
     currentAccount.movements.push(amount);
+
+    //Add Loan Date
+    currentAccount.movementsDates.push(new Date().toISOString());
 
     // Update UI
     updateUI(currentAccount);
@@ -244,7 +292,7 @@ btnClose.addEventListener('click', function (e) {
 let sorted = false;
 btnSort.addEventListener('click', function (e) {
   e.preventDefault();
-  displayMovements(currentAccount.movements, !sorted);
+  displayMovements(currentAccount, !sorted);
   sorted = !sorted;
 });
 
@@ -355,3 +403,112 @@ labelBalance.addEventListener('click', function () {
   });
 }); // when we want to color the each second element in the movements.row
 // when we want to color the 3rd each element in the movements.row
+
+//We can use underscore as numbers separator
+const diameter = 287_460_000_000;
+console.log(diameter);
+
+const price = 435_99;
+console.log(price);
+
+console.log(Number('230_000')); // we can't use underscore on stirngs is not working . // print NaN
+
+console.log(parseInt('230_000')); // we cant use underscore  _  with parsInt()  //print: 230
+// We can't use underscore  when we want to store a number in  a string in an API
+//We can't use _ when we get a number as a string from an API. Because JS will not be able to parse the number correctly out of that string.
+
+//❗❗BigInt
+//Numbers are represented internaly as 64 bits . there are exactly 64 0 or 1 to represent any given number
+// from 64 bits only 53 are used.
+console.log(2 ** 53 - 1); //this is the biggest Safe number in JS
+console.log(Number.MAX_SAFE_INTEGER);
+
+//To use bigger numbers then the safe number we use BigInt
+console.log(455852555559595623224545625449546664664n); //n at the end transform the number in to a BigInt
+console.log(BigInt(25821448655)); //the function BigInt() its working just with small numbers
+// BigInt round the numbers as integers.
+
+//Operations with numbers. all usual operators still works the same
+console.log(10000n + 10000n);
+console.log(236586623655458554445556n * 100000000n);
+
+//console.log(Math.sqrt(20n)); This is not working
+//❗It's not posibble to use BigInt with regular numbers
+const huge = 5258846554445555554n;
+const num = 23;
+//console.log(huge * num);
+console.log(huge * BigInt(num)); // to work we need to use the constractor function BigInt()
+
+//Exceptions
+//Logical Operators
+console.log(20n > 15); // its working
+console.log(20n === 20); // print false because Js when we use === does not do type coercion . This 2 values has different primitive type.
+console.log(20n == 20); // It's working with == loose equal operator becuse Js does type Coercion. It will coercion 20n to a regular number.
+console.log(20n == '20');
+
+// String concatenation
+console.log(huge + 'is Really Big!');
+
+//Divisions
+console.log(10n / 3n); // With division all numebrs it will be return the closest BigInt (integers)
+console.log(10 / 3);
+
+///✅❗CREATING DATES AND TIMES
+// There are 4 ways to creating Dates in JS. Allof them use new Date() constructor just with different parameters
+
+///🖍️ Create a date
+//1.
+/*
+const now2 = new Date();
+console.log(now2);
+
+//2.
+console.log(new Date('Thu May 18 2023 19:20:58 ')); //automaticaly Parse the date from a date string
+console.log(new Date('December 25,2017')); // it is not a good ideea to do this because it's unreliable
+
+// if the string was actually created by Js itself then offcourse it is pretty safe
+console.log(account1.movementsDates[0]);
+//this is based on a string but we can also pass in ,day,month,year,minute,second into this constructor
+console.log(new Date(2037, 11, 19, 15, 23, 5)); // year,month (which is 0 based), day, hour,min,seconds
+// in Js the Month is 0 based
+console.log(new Date(2037, 10, 33)); //Js it will autocorrect to the next day if we input a wrong day
+
+console.log(new Date(0)); //we can also pass into the date constructor function the amount of miliseconds passed since the begining of the Unix time which is January, 1, 1970
+console.log(new Date(3 * 24 * 60 * 60 * 1000)); // this is the time stamp // now we get 3 days later of the begining of the Unix time
+//This dates are another type of Object and they have their own methods just like arrays or maps or strings
+// We can use this methods to get or to set components of a date.
+
+//Working with dates
+const future = new Date(2037, 10, 19, 15, 23);
+console.log(future);
+console.log(future.getFullYear());
+console.log(future.getMonth()); // zero based
+console.log(future.getDate()); //this is the day of the month
+console.log(future.getDay()); // this is the day of the week. 0 is Sunday
+console.log(future.getHours());
+console.log(future.getMinutes());
+console.log(future.getSeconds());
+console.log(future.toISOString()); // we can get a nicely formated string, ISO folow some international standards
+// Its useful when we want to convert a particular date object into a string that you can store somewhere
+
+console.log(future.getTime()); //we can get the timestamp. which is the miliseconds wich has pass since January 1 1970
+console.log(new Date(2142253380000)); //we can take this number and reverse this. Basicaly we can create a new date based on these miliseconds, and it will give us exactly the same time;
+//❗ timestamps are very important ,that there is a special method that we can use to get the timestamp for right now
+console.log(Date.now());
+console.log(new Date(1684526662812));
+
+//❗ They are also set version of all this methods
+future.setFullYear(2040);
+console.log(future);
+*/
+const future = new Date(2037, 10, 19, 15, 23);
+console.log(+future); // converting in Number : print: timestamp in miliseconds
+
+const calcDaysPassed = (date1, date2) =>
+  Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+
+const days1 = calcDaysPassed(
+  new Date(2037, 3, 4),
+  new Date(2037, 3, 14, 10, 8)
+);
+console.log(days1);
